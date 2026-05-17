@@ -12,46 +12,45 @@ import (
 )
 
 type Request struct {
-	prompt string
-	conn   net.Conn
+	conn net.Conn
 }
 
-var queue chan *Request
+type Server struct {
+	queue chan *Request
+}
 
-func handleConnection(conn net.Conn) {
+func (self *Server) handleConnection(conn net.Conn) {
+	// Queue the request
+	request := &Request{
+		conn: conn,
+	}
+
+	select {
+	case self.queue <- request:
+		// Request queued successfully
+	default:
+		// Queue is full
+		fmt.Fprintf(os.Stderr, "Queue full, rejecting request\n")
+		conn.Close()
+	}
+}
+
+func (self *Server) processRequest() {
+	request := <- self.queue
+	defer request.conn.Close()
+
 	// Read the prompt from the client
-	reader := bufio.NewReader(conn)
+	reader := bufio.NewReader(request.conn)
 	prompt, err := reader.ReadString('\n')
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(os.Stderr, "Error reading from connection: %v\n", err)
-		conn.Close()
 		return
 	}
 
 	// Remove trailing newline
 	prompt = strings.TrimSuffix(prompt, "\n")
 
-	// Queue the request
-	request := &Request{
-		prompt: prompt,
-		conn:   conn,
-	}
-
-	select {
-	case queue <- request:
-		// Request queued successfully
-	default:
-		// Queue is full
-		fmt.Fprintf(os.Stderr, "Queue full, rejecting request: %s\n", prompt)
-		conn.Close()
-	}
-}
-
-func processRequest(request *Request) {
-	defer request.conn.Close()
-
 	// Use provided prompt or default to "Password: "
-	prompt := request.prompt
 	if prompt == "" {
 		prompt = "Password: "
 	}
@@ -134,15 +133,17 @@ func RunServer() {
 		os.Exit(1)
 	}
 
-	// Initialize the queue
-	queue = make(chan *Request, 10) // Buffer for up to 10 pending requests
+	// Initialize server object
+	server := Server{
+		queue: make(chan *Request, 10), // Buffer for up to 10 pending requests
+	}
 
 	fmt.Fprintf(os.Stderr, "Server listening on %s\n", path)
 
 	// Start the request processor
 	go func() {
-		for request := range queue {
-			processRequest(request)
+		for {
+			server.processRequest()
 		}
 	}()
 
@@ -153,6 +154,6 @@ func RunServer() {
 			continue
 		}
 
-		go handleConnection(conn)
+		go server.handleConnection(conn)
 	}
 }
