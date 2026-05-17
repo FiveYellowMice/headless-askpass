@@ -16,12 +16,12 @@ Existing askpass helpers mostly require a trusted graphical session to obtain pa
 
 ## Usage
 
-In a terminal, start a server by `headless-askpass -s`. On the same machine and user, subsequent calls to `sudo` without a terminal or `sudo -A` will prompt for password in that terminal.
+In a terminal, start a server by `headless-askpass -s`. On the same machine and user, subsequent calls to `sudo` without a terminal or `sudo -A` will prompt for password in that terminal. End the server with Ctrl+C when you are done.
 
 ## Installation
 
 1. Download a binary from releases or build one from source.
-2. Put the binary to somewhere in your `$PATH`, like `/usr/local/bin`. Make it executable.
+2. Put the binary to somewhere in your `$PATH`, like `/usr/local/bin/headless-askpass`. Make it executable.
 3. Configure sudo to use this askpass helper. Choose one of:
   - Add to `/etc/sudoers` or a file in `/etc/suders.d`:
     ```
