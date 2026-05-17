@@ -23,24 +23,23 @@ In a terminal, start a server by `headless-askpass -s`. On the same machine and 
 1. Download a binary from releases or build one from source.
 2. Put the binary to somewhere in your `$PATH`, like `/usr/local/bin/headless-askpass`. Make it executable.
 3. Configure sudo to use this askpass helper. Choose one of:
-  - Add to `/etc/sudoers` or a file in `/etc/suders.d`:
-    ```
-    Path askpass /usr/local/bin/headless-askpass
-    ```
-  - If `PermitUserEnvironment` is turned on in SSH, add to `~/.ssh/environment`:
-    ```
-    SUDO_ASKPASS=/usr/local/bin/headless-askpass
-    ```
-  - Add to `/etc/environment`:
-    ```
-    SUDO_ASKPASS=/usr/local/bin/headless-askpass
-    ```
+    - Add to `/etc/sudoers` or a file in `/etc/suders.d`:
+        ```
+        Path askpass /usr/local/bin/headless-askpass
+        ```
+    - If `PermitUserEnvironment` is turned on in SSH, add to `~/.ssh/environment`:
+        ```
+        SUDO_ASKPASS=/usr/local/bin/headless-askpass
+        ```
+    - Add to `/etc/environment`:
+        ```
+        SUDO_ASKPASS=/usr/local/bin/headless-askpass
+        ```
 
 ## Building
 
-```bash
-go build -o headless-askpass
-```
+1. Install [Go](https://go.dev/).
+2. `make`
 
 ## Similar Projects
 
